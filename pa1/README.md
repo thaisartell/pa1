@@ -1,8 +1,8 @@
 # Programming Assignment 1: Integer Sum and Average Calculation
 
 ## Team Information
-1. Team members: Kip Schetnan,
-2. x500: schet076,
+1. Team members: Kip Schetnan, Richard Sartell
+2. x500: schet076, sarte016
 3. Division of tasks: [TODO: Describe task division]
 4. Lab machine used: [TODO: Specify lab machine]
 
