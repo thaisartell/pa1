@@ -3,8 +3,8 @@
 ## Team Information
 1. Team members: Kip Schetnan, Richard Sartell
 2. x500: schet076, sarte016
-3. Division of tasks: [TODO: Describe task division]
-4. Lab machine used: [TODO: Specify lab machine]
+3. Division of tasks: Richard has worked on child.c. Kip has worked on calculator.c/.h.
+4. Lab machine used: Richard - Linux Mint computer
 
 ## Design Specifications
 [TODO: Add your design details here]
@@ -23,7 +23,7 @@
 [TODO: Document any challenges]
 
 ## AI Tools Usage
-[TODO: Document any AI tools used]
+ChatGPT o3: Use as a reference for function arguments (ex: "function definition for fopen"). 
 
 ## Additional Notes
 [TODO: Any other information for the TA]
