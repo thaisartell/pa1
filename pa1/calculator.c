@@ -48,7 +48,7 @@ void process_directory(const char *dir_path) {
     /* Read directory entries */
     int childIndex = 0;
     while ((entry = readdir(dir)) != NULL) {
-        // Skip "." and ".."
+        // Skipping "." and ".." here
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
 
@@ -69,7 +69,8 @@ void process_directory(const char *dir_path) {
             perror("execl failed");
             exit(EXIT_FAILURE);
         } else {
-            childPids[childIndex++] = pid;
+            childPids[childIndex] = pid;
+            childIndex++;
         }
     }
         
