@@ -23,7 +23,7 @@
 [TODO: Document any challenges]
 
 ## AI Tools Usage
-ChatGPT o3: Use as a reference for function arguments (ex: "function definition for fopen"). 
+(Richard) ChatGPT o3: Use as a reference for function arguments (ex: "function definition for fopen"). 
 
 ## Additional Notes
 [TODO: Any other information for the TA]
