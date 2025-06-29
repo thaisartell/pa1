@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 /* Function prototypes */
 /* Feel free to add your own helper functions */
@@ -27,32 +28,68 @@ int main(int argc, char *argv[]) {
 
 void process_directory(const char *dir_path) {
     /* TODO: Task 1 - Directory handling */
-    DIR *dir = opendir(dir_path);
+    
     /* Open directory */
-        
+    DIR *dir = opendir(dir_path);
+    struct dirent *entry;
+    pid_t *childPids = NULL;
     /* Count files first to allocate memory */
-    int num_files = count_files_in_directory(dir_path);
-    if (num_files == 0) {
+    
+    int numFiles = count_files_in_directory(dir_path);
+    if (numFiles == 0) {
         closedir(dir);
         return; // No files to process
     }
     /* TODO: Allocate memory for results */
-    child_pids = malloc(num_files * sizeof(pid_t));
+    childPids = malloc(numFiles * sizeof(pid_t));
     /* Phase 2: Create pipes for communication */
     /* TODO: Task 4 - Create pipes here */
     
     /* Read directory entries */
+    int childIndex = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        // Skipping "." and ".." here
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        char full_path[PATH_MAX];
+        snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
+
+        struct stat path_stat;
+        if (stat(full_path, &path_stat) == -1 || !S_ISREG(path_stat.st_mode)) {
+            continue;
+        }
+
+        pid_t pid = fork();
+        if (pid < 0) {
+            perror("failed fork");
+            continue;
+        } else if (pid == 0) {
+            execl("./child", "./child", full_path, (char *)NULL);
+            perror("execl failed");
+            exit(EXIT_FAILURE);
+        } else {
+            childPids[childIndex] = pid;
+            childIndex++;
+        }
+    }
         
     /* TODO: Task 2 - Wait for all child processes to complete */
+    for (int i = 0; i < childIndex; i++) {
+        int status;
+        waitpid(childPids[i], &status, 0);
+    }
     
     /* TODO: Close directory here */
     closedir(dir);
     /* Calculate and print final results */
    
     /* TODO: Remember to deallocate any memory */
+    free(childPids);
 }
 
 int count_files_in_directory(const char *dir_path) {
+    DIR *dir = opendir(dir_path);
     int count = 0;
 
     struct dirent *entry;

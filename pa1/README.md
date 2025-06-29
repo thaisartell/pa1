@@ -4,7 +4,7 @@
 1. Team members: Kip Schetnan, Richard Sartell
 2. x500: schet076, sarte016
 3. Division of tasks: Richard has worked on child.c. Kip has worked on calculator.c/.h.
-4. Lab machine used: Richard - Linux Mint computer
+4. Lab machine used: Richard - Linux Mint computer, Kip - login01
 
 ## Design Specifications
 [TODO: Add your design details here]
