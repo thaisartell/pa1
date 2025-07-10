@@ -22,7 +22,9 @@ int main(int argc, char *argv[]) {
     file_path = argv[1];
 
     /* TODO: Get the file descriptor from the command line in Phase 2 */
-
+    if (argc == 3) {
+        pipe_fd = atoi(argv[2]);
+    }
     /* Process the file */
     process_file(file_path, pipe_fd);
     
@@ -38,7 +40,10 @@ void process_file(const char *file_path, int pipe_fd){
 
     /* TODO: Task 3 - Open file and extract numbers */
     FILE* fp = fopen(file_path, "r");
-        
+    if (!fp) {
+        perror("fopen failed");
+        exit(1);
+    }
     /* Read integers from file, one per line */
     int num;
     while (fscanf(fp, "%d", &num) == 1) {
@@ -49,17 +54,26 @@ void process_file(const char *file_path, int pipe_fd){
     /* Remember to close the file */
     fclose(fp);
     
-    /* Phase 1: Write results to .results file */
-    write_results_to_file(file_path, count, sum);
-    
     /* Phase 2: Send results via pipe */
     /* TODO: Task 4 - Implement pipe communication */
     /* send_results_via_pipe(pipe_fd, count, sum); */
+    if (pipe_fd >= 0) {
+        send_results_via_pipe(pipe_fd, count, sum);
+    } else {
+        write_results_to_file(file_path, count, sum);
+    }
 }
 
 void write_results_to_file(const char *original_path, int count, long sum) {
     /* TODO: Create .results filename */
-    FILE* fp = fopen(".results", "w");
+    char result_filename[1024];
+    snprintf(result_filename, sizeof(result_filename), "%s.results", original_path);
+
+    FILE *fp = fopen(result_filename, "w");
+    if (!fp) {
+        perror("fopen failed for .results file");
+        exit(1);
+    }
 
     /* TODO: Write count and sum to results file */
     fprintf(fp, "count: %d", count);
