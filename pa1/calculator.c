@@ -42,9 +42,14 @@ void process_directory(const char *dir_path) {
     }
     /* TODO: Allocate memory for results */
     childPids = malloc(numFiles * sizeof(pid_t));
+    if (!childPids || !pipes) {
+        perror("malloc failed");
+        closedir(dir);
+        exit(EXIT_FAILURE);
+    }
     /* Phase 2: Create pipes for communication */
     /* TODO: Task 4 - Create pipes here */
-    
+    int (*pipes)[2] = malloc(num_files * sizeof(int[2]));
     /* Read directory entries */
     int childIndex = 0;
     while ((entry = readdir(dir)) != NULL) {
@@ -60,32 +65,71 @@ void process_directory(const char *dir_path) {
             continue;
         }
 
+        if (pipe(pipes[childIndex]) < 0) {
+            perror("pipe failed");
+            continue;
+        }
+
         pid_t pid = fork();
         if (pid < 0) {
             perror("failed fork");
             continue;
         } else if (pid == 0) {
+            close(pipes[childIndex][0]);
+
+            char fd_str[10];
+            snprintf(fd_str, sizeof(fd_str), "%d", pipes[childIndex][1]);
+
             execl("./child", "./child", full_path, (char *)NULL);
             perror("execl failed");
             exit(EXIT_FAILURE);
         } else {
+            close(pipes[childIndex][1]);
             childPids[childIndex] = pid;
             childIndex++;
         }
     }
+    closedir(dir);
         
     /* TODO: Task 2 - Wait for all child processes to complete */
+
+    long sum = 0;
+    int count = 0;
     for (int i = 0; i < childIndex; i++) {
+        int file_count;
+        long file_sum;
+        char filename[64];
+
         int status;
         waitpid(childPids[i], &status, 0);
+
+        if (read(pipes[i][0], &file_count, sizeof(int)) != sizeof(int)) {
+            fprintf(stderr, "Failed to read count from child %d\n", i);
+            file_count = 0;
+        }
+        if (read(pipes[i][0], &file_sum, sizeof(long)) != sizeof(long)) {
+            fprintf(stderr, "Failed to read sum from child %d\n", i);
+            file_sum = 0;
+        }
+
+        close(pipes[i][0]);
+
+        count += file_count;
+        sum += file_sum;
+
+        printf("File_%d: %d, %ld\n", i+1, file_count, file_sum);
     }
-    
-    /* TODO: Close directory here */
-    closedir(dir);
+
     /* Calculate and print final results */
-   
+    printf("Sum: %ld\n", total_sum);
+    if (total_count > 0)
+        printf("Average: %ld\n", total_sum / total_count);
+    else
+        printf("Average: 0\n");
+    
     /* TODO: Remember to deallocate any memory */
     free(childPids);
+    free(pipes);
 }
 
 int count_files_in_directory(const char *dir_path) {
