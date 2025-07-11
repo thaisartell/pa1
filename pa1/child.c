@@ -42,7 +42,13 @@ void process_file(const char *file_path, int pipe_fd){
     FILE* fp = fopen(file_path, "r");
     if (!fp) {
         perror("fopen failed");
-        exit(1);
+        count = 0;
+        sum = 0;
+        if (pipe_fd >= 0)
+            send_results_via_pipe(pipe_fd, count, sum);
+        else
+            write_results_to_file(file_path, count, sum);
+        exit(0);
     }
     /* Read integers from file, one per line */
     int num;
@@ -94,10 +100,12 @@ void send_results_via_pipe(int pipe_fd, int count, long sum){
     }
 
     if (write(pipe_fd, &count, sizeof(count)) != sizeof(count)) {
+        close(pipe_fd);
         return;
     }
 
     if (write(pipe_fd, &sum, sizeof(sum)) != sizeof(sum)) {
+        close(pipe_fd);
         return;
     }
 

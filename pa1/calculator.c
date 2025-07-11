@@ -38,6 +38,7 @@ void process_directory(const char *dir_path) {
     int numFiles = count_files_in_directory(dir_path);
     if (numFiles == 0) {
         closedir(dir);
+        printf("Sum: 0\nAverage: 0\n");
         return; // No files to process
     }
     /* TODO: Allocate memory for results */
