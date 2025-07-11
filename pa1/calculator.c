@@ -42,14 +42,17 @@ void process_directory(const char *dir_path) {
     }
     /* TODO: Allocate memory for results */
     childPids = malloc(numFiles * sizeof(pid_t));
+
+    /* Phase 2: Create pipes for communication */
+    /* TODO: Task 4 - Create pipes here */
+    int (*pipes)[2] = malloc(numFiles * sizeof(int[2]));
+
     if (!childPids || !pipes) {
         perror("malloc failed");
         closedir(dir);
         exit(EXIT_FAILURE);
     }
-    /* Phase 2: Create pipes for communication */
-    /* TODO: Task 4 - Create pipes here */
-    int (*pipes)[2] = malloc(num_files * sizeof(int[2]));
+
     /* Read directory entries */
     int childIndex = 0;
     while ((entry = readdir(dir)) != NULL) {
@@ -57,7 +60,8 @@ void process_directory(const char *dir_path) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
 
-        char full_path[PATH_MAX];
+        // char full_path[PATH_MAX];
+        char full_path[1024];
         snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
 
         struct stat path_stat;
@@ -80,7 +84,7 @@ void process_directory(const char *dir_path) {
             char fd_str[10];
             snprintf(fd_str, sizeof(fd_str), "%d", pipes[childIndex][1]);
 
-            execl("./child", "./child", full_path, (char *)NULL);
+            execl("./child", "./child", full_path, fd_str, (char *)NULL);
             perror("execl failed");
             exit(EXIT_FAILURE);
         } else {
@@ -98,7 +102,7 @@ void process_directory(const char *dir_path) {
     for (int i = 0; i < childIndex; i++) {
         int file_count;
         long file_sum;
-        char filename[64];
+        // char filename[64];
 
         int status;
         waitpid(childPids[i], &status, 0);
@@ -121,9 +125,9 @@ void process_directory(const char *dir_path) {
     }
 
     /* Calculate and print final results */
-    printf("Sum: %ld\n", total_sum);
-    if (total_count > 0)
-        printf("Average: %ld\n", total_sum / total_count);
+    printf("Sum: %ld\n", sum);
+    if (count > 0)
+        printf("Average: %ld\n", sum / count);
     else
         printf("Average: 0\n");
     
@@ -134,6 +138,11 @@ void process_directory(const char *dir_path) {
 
 int count_files_in_directory(const char *dir_path) {
     DIR *dir = opendir(dir_path);
+
+    if (dir == NULL) {
+        exit(EXIT_FAILURE);
+    }
+
     int count = 0;
 
     struct dirent *entry;
@@ -142,7 +151,8 @@ int count_files_in_directory(const char *dir_path) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
 
-        char full_path[PATH_MAX];
+        // char full_path[PATH_MAX];
+        char full_path[1024];
         snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
 
         struct stat path_stat;

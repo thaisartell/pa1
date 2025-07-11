@@ -76,8 +76,8 @@ void write_results_to_file(const char *original_path, int count, long sum) {
     }
 
     /* TODO: Write count and sum to results file */
-    fprintf(fp, "count: %d", count);
-    fprintf(fp, "sum: %ld", sum);
+    fprintf(fp, "count: %d ", count);
+    fprintf(fp, "sum: %ld\n", sum);
 
     /* Remember to close files and release resources */
     fclose(fp);
@@ -88,4 +88,19 @@ void send_results_via_pipe(int pipe_fd, int count, long sum){
     /* This function will be implemented in Phase 2 */
     /* TODO: Write message to pipe */
     /* Hint: The pipe file descriptor should be passed somehow */
+
+    if (pipe_fd < 0) {
+        return;
+    }
+
+    if (write(pipe_fd, &count, sizeof(count)) != sizeof(count)) {
+        return;
+    }
+
+    if (write(pipe_fd, &sum, sizeof(sum)) != sizeof(sum)) {
+        return;
+    }
+
+    close(pipe_fd);
+
 }
