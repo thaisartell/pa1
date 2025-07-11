@@ -41,7 +41,6 @@ void process_file(const char *file_path, int pipe_fd){
     /* TODO: Task 3 - Open file and extract numbers */
     FILE* fp = fopen(file_path, "r");
     if (!fp) {
-        perror("fopen failed");
         exit(1);
     }
     /* Read integers from file, one per line */
@@ -71,7 +70,6 @@ void write_results_to_file(const char *original_path, int count, long sum) {
 
     FILE *fp = fopen(result_filename, "w");
     if (!fp) {
-        perror("fopen failed for .results file");
         exit(1);
     }
 
