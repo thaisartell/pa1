@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     
-    const char *dir_path = argv[1];
     /* TODO: Get the path to the directory from command line options */ 
+    const char *dir_path = argv[1];
 
     /* TODO: Process the directory */
     process_directory(dir_path);
@@ -52,7 +52,6 @@ void process_directory(const char *dir_path) {
         closedir(dir);
         exit(EXIT_FAILURE);
     }
-
     /* Read directory entries */
     int childIndex = 0;
     while ((entry = readdir(dir)) != NULL) {
@@ -65,7 +64,16 @@ void process_directory(const char *dir_path) {
         snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
 
         struct stat path_stat;
-        if (stat(full_path, &path_stat) == -1 || !S_ISREG(path_stat.st_mode)) {
+        if (stat(full_path, &path_stat) == -1) {
+            continue;
+        }
+
+        if (S_ISDIR(path_stat.st_mode)) {
+            process_directory(full_path);
+            continue;
+        }
+
+        if (!S_ISREG(path_stat.st_mode)) {
             continue;
         }
 
@@ -156,12 +164,15 @@ int count_files_in_directory(const char *dir_path) {
         snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
 
         struct stat path_stat;
-        if (stat(full_path, &path_stat) == 0 && S_ISREG(path_stat.st_mode)) {
-            count++;
+        if (stat(full_path, &path_stat) == 0) {
+            if (S_ISREG(path_stat.st_mode)) {
+                count++;
+            }
+            else if (S_ISDIR(path_stat.st_mode)) {    
+                count += count_files_in_directory(full_path);  
+            }
         }
     }
-
     closedir(dir);
-
     return count;
 }

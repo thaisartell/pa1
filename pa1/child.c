@@ -76,7 +76,7 @@ void write_results_to_file(const char *original_path, int count, long sum) {
     }
 
     /* TODO: Write count and sum to results file */
-    fprintf(fp, "count: %d ", count);
+    fprintf(fp, "count: %d\n", count);
     fprintf(fp, "sum: %ld\n", sum);
 
     /* Remember to close files and release resources */
